@@ -1,0 +1,28 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.matthewperiut.retroauth.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "server": [
+    "server.ServerNetworkHandlerAccessor",
+    "server.ServerNetworkHandlerMixin"
+  ],
+  "client": [
+    "client.PlayerEntityMixin",
+    "client.BipedEntityModelMixin",
+    "client.ClientNetworkHandlerMixin",
+    "client.ClientPlayerEntityMixin",
+    "client.EntityRenderDispatcherMixin",
+    "client.ModelPartMixin",
+    "client.OtherPlayerEntityMixin",
+    "client.PlayerEntityRendererMixin",
+    "client.SessionMixin",
+    "client.SkinImageProcessorMixin",
+    "client.WorldRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

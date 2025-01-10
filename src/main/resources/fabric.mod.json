@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "retroauth",
+  "version": "${version}",
+
+  "name": "RetroAuth",
+  "description": "Adds Official Modern Mojang Authentication and Skin Features to b1.7.3",
+  "authors": [
+    "Slainlight"
+  ],
+  "contact": {
+    "homepage": "https://modrinth.com/mod/retroauth",
+    "sources": "https://github.com/matthewperiut/retroauth"
+  },
+
+  "license": "MIT",
+  "icon": "assets/retroauth/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.matthewperiut.retroauth.RetroAuth"
+    ]
+  },
+  "mixins": [
+    "retroauth.mixins.json"
+  ],
+
+  "depends": {
+    "minecraft": "1.0.0-beta.7.3"
+  }
+}
