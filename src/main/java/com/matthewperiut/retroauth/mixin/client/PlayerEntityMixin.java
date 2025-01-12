@@ -12,6 +12,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Objects;
+
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity implements PlayerEntitySkinData {
     @Unique
@@ -39,6 +41,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerEn
     @Unique
     public void setTextureModel(String textureModel) {
         this.textureModel = textureModel;
-        this.texture = textureModel == "default" ? SkinService.STEVE_TEXTURE : SkinService.ALEX_TEXTURE;
+        this.texture = Objects.equals(textureModel, "default") ? SkinService.STEVE_TEXTURE : SkinService.ALEX_TEXTURE;
     }
 }

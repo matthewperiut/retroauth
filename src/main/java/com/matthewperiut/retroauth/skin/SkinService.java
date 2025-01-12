@@ -17,8 +17,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SkinService {
-    public static final String STEVE_TEXTURE = "/mob/steve.png";
-    public static final String ALEX_TEXTURE = "/mob/alex.png";
+    public static final String STEVE_TEXTURE = "/assets/retroauth/mob/steve.png";
+    public static final String ALEX_TEXTURE = "/assets/retroauth/mob/alex.png";
 
     private static final SkinService INSTANCE = new SkinService();
     private final ConcurrentMap<String, ReentrantLock> locks = new ConcurrentHashMap<>();
@@ -30,14 +30,20 @@ public class SkinService {
     }
 
     private void updatePlayer(PlayerEntity player, PlayerProfile playerProfile) {
-        if (playerProfile == null) return;
-
         PlayerEntitySkinData skinData = (PlayerEntitySkinData) player;
 
-        skinData.setTextureModel(playerProfile.getTextureModel());
-        player.skinUrl = playerProfile.getSkinUrl();
-        player.capeUrl = player.playerCapeUrl = playerProfile.getCapeUrl();
+        if (playerProfile == null) {
+            // Fallback to Steve skin and default model
+            RetroAuth.LOGGER.info("Profile not found for player {}, using default skin.", player.name);
+            skinData.setTextureModel("default");
+        } else {
+            // Apply fetched profile data
+            skinData.setTextureModel(playerProfile.getTextureModel());
+            player.skinUrl = playerProfile.getSkinUrl();
+            player.capeUrl = player.playerCapeUrl = playerProfile.getCapeUrl();
+        }
 
+        // Notify the world renderer to update the player entity
         ((Minecraft) FabricLoader.getInstance().getGameInstance()).worldRenderer.notifyEntityAdded(player);
     }
 
@@ -63,8 +69,13 @@ public class SkinService {
         initOffline(player);
 
         (new Thread(() -> {
-            init(player.name);
-            updatePlayer(player);
+            try {
+                init(player.name);
+                updatePlayer(player);
+            } catch (Exception e) {
+                RetroAuth.LOGGER.error("Error initializing profile for player {}", player.name, e);
+                initOffline(player);
+            }
         })).start();
     }
 
@@ -83,24 +94,31 @@ public class SkinService {
                 try {
                     gameProfile = provider.get(name).get();
                 } catch (Exception e) {
-                    RetroAuth.LOGGER.warn("Lookup using {} for profile {} failed!", provider.getClass().getSimpleName(), name);
+                    RetroAuth.LOGGER.warn("Profile lookup failed using {} for player {}: {}", provider.getClass().getSimpleName(), name, e.getMessage());
                     continue;
                 }
 
-                // Map GameProfile to PlayerProfile
-                PlayerProfile playerProfile = new PlayerProfile(
-                        UUID.fromString(gameProfile.getId()),
-                        gameProfile.getSkinUrl(),
-                        gameProfile.getCapeUrl(),
-                        gameProfile.getModel()
-                );
+                try {
+                    PlayerProfile playerProfile = new PlayerProfile(
+                            UUID.fromString(gameProfile.getId()),
+                            gameProfile.getSkinUrl() != null ? gameProfile.getSkinUrl() : STEVE_TEXTURE,
+                            gameProfile.getCapeUrl(),
+                            gameProfile.getModel() != null ? gameProfile.getModel() : "default"
+                    );
 
-                RetroAuth.LOGGER.info("Downloaded profile: " + gameProfile.getName() + " (" + gameProfile.getId() + ")");
-                profiles.put(name, playerProfile);
+                    RetroAuth.LOGGER.info("Downloaded profile: {} ({})", gameProfile.getName(), gameProfile.getId());
+                    profiles.put(name, playerProfile);
+                } catch (Exception e) {
+                    RetroAuth.LOGGER.error("Failed to map GameProfile to PlayerProfile for player {}: {}", name, e.getMessage());
+                    profiles.put(name, null); // Ensure fallback is used for the player
+                }
+
                 return;
             }
 
-            profiles.put(name, null); // Profile not found
+            // No profile found; fallback to offline profile
+            RetroAuth.LOGGER.info("No profile found for player {}, using offline fallback.", name);
+            profiles.put(name, null);
         } finally {
             lock.unlock();
         }
