@@ -4,6 +4,7 @@
   "package": "com.matthewperiut.retroauth.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "HandshakePacketMixin"
   ],
   "server": [
     "server.ServerNetworkHandlerAccessor",
