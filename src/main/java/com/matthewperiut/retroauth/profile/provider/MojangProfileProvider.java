@@ -48,7 +48,7 @@ public class MojangProfileProvider implements ProfileProvider {
                 JsonArray properties = detailedProfile.getAsJsonArray("properties");
                 if (properties.size() == 0) {
                     // No properties found
-                    return new GameProfile(uuid, name, null, null);
+                    return new GameProfile(uuid, name, null, null, null, null);
                 }
 
                 JsonObject textureProperty = properties.get(0).getAsJsonObject();
@@ -56,7 +56,7 @@ public class MojangProfileProvider implements ProfileProvider {
                 String textureSignature = textureProperty.get("signature").getAsString();
 
                 // 4) Construct and return a GameProfile.
-                return new GameProfile(uuid, name, textureValue, textureSignature);
+                return new GameProfile(uuid, name, textureValue, textureSignature, null, null);
 
             } catch (Exception e) {
                 // In case of an error, complete with an exception.
@@ -109,5 +109,10 @@ public class MojangProfileProvider implements ProfileProvider {
                 conn.disconnect();
             }
         }
+    }
+
+    @Override
+    public String getProviderName() {
+        return "MojangAPI";
     }
 }

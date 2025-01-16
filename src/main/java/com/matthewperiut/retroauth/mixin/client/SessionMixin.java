@@ -29,7 +29,7 @@ public class SessionMixin implements SessionData {
         if (split.length == 3 && split[0].equalsIgnoreCase("token")) {
             accessToken = split[1];
             UUID uuid = UUID.fromString(UUID_PATTERN.matcher(split[2]).replaceAll("$1-$2-$3-$4-$5"));
-            gameProfile = new GameProfile(uuid.toString(), username, null, null);
+            gameProfile = new GameProfile(uuid.toString(), username, null, null, null, null);
 
             RetroAuth.LOGGER.info("Signed in as {} ({})", username, uuid);
         } else {

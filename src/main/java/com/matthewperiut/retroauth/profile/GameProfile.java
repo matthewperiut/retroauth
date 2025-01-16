@@ -11,12 +11,17 @@ public class GameProfile {
     private final String name;
     private final String textureValue;
     private final String textureSignature;
+    private final String capeUrl;    // NEW FIELD
+    private final String skinUrl;    // NEW FIELD
 
-    public GameProfile(String id, String name, String textureValue, String textureSignature) {
+    public GameProfile(String id, String name, String textureValue, String textureSignature,
+                       String capeUrl, String skinUrl) {
         this.id = id;
         this.name = name;
         this.textureValue = textureValue;
         this.textureSignature = textureSignature;
+        this.capeUrl = capeUrl;
+        this.skinUrl = skinUrl;
     }
 
     private static String addDashesToUUID(String uuid32) {
@@ -86,6 +91,9 @@ public class GameProfile {
      * Extracts the skin URL from the texture data.
      */
     public String getSkinUrl() {
+        if (skinUrl != null)
+            return skinUrl;
+
         JsonObject textures = parseTextureData();
         if (textures != null && textures.has("SKIN")) {
             return textures.getAsJsonObject("SKIN").get("url").getAsString();
@@ -97,6 +105,9 @@ public class GameProfile {
      * Extracts the cape URL from the texture data.
      */
     public String getCapeUrl() {
+        if (capeUrl != null)
+            return capeUrl;
+
         JsonObject textures = parseTextureData();
         if (textures != null && textures.has("CAPE")) {
             return textures.getAsJsonObject("CAPE").get("url").getAsString();
