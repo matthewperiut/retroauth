@@ -26,7 +26,7 @@ public class ServerNetworkHandlerMixin {
 
     /**
      * @reason Swap auth logic completely
-     * @author js6pak
+     * @author Slainlight
      */
     @Overwrite(remap = false)
     public void run() {
