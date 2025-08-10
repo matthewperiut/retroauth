@@ -18,7 +18,7 @@ abstract class HandshakePacketMixin extends Packet {
             index = 1
     )
     private int widenMaxLen(int originalMax) {
-        return Math.max(originalMax+8, 40);
+        return Math.max(originalMax, originalMax+8);
     }
 }
 
