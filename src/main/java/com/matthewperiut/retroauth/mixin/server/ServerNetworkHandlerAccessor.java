@@ -1,15 +1,15 @@
 package com.matthewperiut.retroauth.mixin.server;
 
-import net.minecraft.network.packets.LoginPacket;
-import net.minecraft.server.network.ServerLoginPacketListener;
+import net.minecraft.network.packet.LoginPacket;
+import net.minecraft.server.network.handler.ServerLoginNetworkHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-@Mixin(ServerLoginPacketListener.class)
+@Mixin(ServerLoginNetworkHandler.class)
 public interface ServerNetworkHandlerAccessor {
-    @Accessor("serverId")
+    @Accessor("key")
     String getServerId();
 
-    @Accessor("loginPacket")
+    @Accessor("packet")
     void setLoginPacket(LoginPacket loginPacket);
 }

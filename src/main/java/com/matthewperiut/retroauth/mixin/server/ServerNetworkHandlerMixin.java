@@ -11,15 +11,15 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import net.minecraft.network.packets.LoginPacket;
-import net.minecraft.server.network.ServerLoginPacketListener;
+import net.minecraft.network.packet.LoginPacket;
+import net.minecraft.server.network.handler.ServerLoginNetworkHandler;
 
-@Mixin(targets = "net.minecraft.server.network.ServerLoginPacketListener$15575233")
+@Mixin(targets = "net.minecraft.server.network.handler.ServerLoginNetworkHandler$net.minecraft.server.network.handler.ServerLoginNetworkHandler__15575233")
 public class ServerNetworkHandlerMixin {
     private static final String SESSION_SERVER_URL = "https://sessionserver.mojang.com/session/minecraft/hasJoined";
     @Shadow
     @Final
-    ServerLoginPacketListener f_55814992;
+    ServerLoginNetworkHandler f_55814992;
     @Shadow
     @Final
     LoginPacket f_12137288;
@@ -35,7 +35,7 @@ public class ServerNetworkHandlerMixin {
 
             try {
                 // Construct the URL for Mojang's session server
-                String requestUrl = SESSION_SERVER_URL + "?username=" + f_12137288.userName + "&serverId=" + accessor.getServerId();
+                String requestUrl = SESSION_SERVER_URL + "?username=" + f_12137288.username + "&serverId=" + accessor.getServerId();
 
                 // Open connection
                 HttpURLConnection connection = (HttpURLConnection) new URL(requestUrl).openConnection();

@@ -1,8 +1,8 @@
 package com.matthewperiut.retroauth.skin;
 
 import com.matthewperiut.retroauth.skin.data.ModelPartData;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.render.model.ModelPart;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 
 public class ModernPlayerEntityModel extends HumanoidModel {
     public final ModelPart leftSleeve;
@@ -73,19 +73,19 @@ public class ModernPlayerEntityModel extends HumanoidModel {
 
     public void copyPositionAndRotation(ModelPart from, ModelPart to) {
         to.setPos(from.x, from.y, from.z);
-        to.yRot = from.yRot;
-        to.xRot = from.xRot;
-        to.zRot = from.zRot;
+        to.rotationY = from.rotationY;
+        to.rotationX = from.rotationX;
+        to.rotationZ = from.rotationZ;
     }
 
     @Override
-    public void setupAnim(float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, float scale) {
-        super.setupAnim(limbAngle, limbDistance, animationProgress, headYaw, headPitch, scale);
+    public void setupAnimation(float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, float scale) {
+        super.setupAnimation(limbAngle, limbDistance, animationProgress, headYaw, headPitch, scale);
         this.copyPositionAndRotation(this.leftLeg, this.leftPantLeg);
         this.copyPositionAndRotation(this.rightLeg, this.rightPantLeg);
         this.copyPositionAndRotation(this.leftArm, this.leftSleeve);
         this.copyPositionAndRotation(this.rightArm, this.rightSleeve);
         this.copyPositionAndRotation(this.body, this.jacket);
-        this.copyPositionAndRotation(this.head, this.hair);
+        this.copyPositionAndRotation(this.head, this.hat);
     }
 }

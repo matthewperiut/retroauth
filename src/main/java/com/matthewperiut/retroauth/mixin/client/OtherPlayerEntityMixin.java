@@ -1,17 +1,17 @@
 package com.matthewperiut.retroauth.mixin.client;
 
 import com.matthewperiut.retroauth.skin.SkinService;
-import net.minecraft.client.player.RemotePlayer;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.client.entity.mob.player.RemoteClientPlayerEntity;
+import net.minecraft.entity.mob.player.PlayerEntity;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(RemotePlayer.class)
-public abstract class OtherPlayerEntityMixin extends Player {
-    public OtherPlayerEntityMixin(Level arg) {
+@Mixin(RemoteClientPlayerEntity.class)
+public abstract class OtherPlayerEntityMixin extends PlayerEntity {
+    public OtherPlayerEntityMixin(World arg) {
         super(arg);
     }
 

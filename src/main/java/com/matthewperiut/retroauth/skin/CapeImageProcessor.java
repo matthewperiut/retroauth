@@ -2,9 +2,9 @@ package com.matthewperiut.retroauth.skin;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import net.minecraft.client.renderer.HttpTextureProcessor;
+import net.minecraft.client.render.texture.HttpImageProcessor;
 
-public class CapeImageProcessor implements HttpTextureProcessor {
+public class CapeImageProcessor implements HttpImageProcessor {
     @Override
     public BufferedImage process(BufferedImage image) {
         if (image == null) {

@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 import java.util.regex.Pattern;
-import net.minecraft.client.User;
+import net.minecraft.client.Session;
 
-@Mixin(User.class)
+@Mixin(Session.class)
 public class SessionMixin implements SessionData {
     @Unique
     private static final Pattern UUID_PATTERN = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");

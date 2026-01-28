@@ -9,7 +9,7 @@ import com.matthewperiut.retroauth.profile.provider.ProfileProvider;
 import com.matthewperiut.retroauth.skin.data.PlayerEntitySkinData;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.entity.mob.player.PlayerEntity;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +29,7 @@ public class SkinService {
         return INSTANCE;
     }
 
-    private void updatePlayer(Player player, PlayerProfile playerProfile) {
+    private void updatePlayer(PlayerEntity player, PlayerProfile playerProfile) {
         PlayerEntitySkinData skinData = (PlayerEntitySkinData) player;
 
         if (playerProfile == null) {
@@ -39,15 +39,15 @@ public class SkinService {
         } else {
             // Apply fetched profile data
             skinData.setTextureModel(playerProfile.getTextureModel());
-            player.customTextureUrl = playerProfile.getSkinUrl();
-            player.customTextureUrl2 = player.cloakTexture = playerProfile.getCapeUrl();
+            player.skin = playerProfile.getSkinUrl();
+            player.cape = player.cape = playerProfile.getCapeUrl();
         }
 
         // Notify the world renderer to update the player entity
-        ((Minecraft) FabricLoader.getInstance().getGameInstance()).levelRenderer.entityAdded(player);
+        ((Minecraft) FabricLoader.getInstance().getGameInstance()).worldRenderer.notifyEntityAdded(player);
     }
 
-    private boolean updatePlayer(Player player) {
+    private boolean updatePlayer(PlayerEntity player) {
         if (profiles.containsKey(player.name)) {
             PlayerProfile profile = profiles.get(player.name);
             updatePlayer(player, profile);
@@ -57,13 +57,13 @@ public class SkinService {
         return false;
     }
 
-    private void initOffline(Player player) {
+    private void initOffline(PlayerEntity player) {
         UUID uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.name).getBytes(StandardCharsets.UTF_8));
         PlayerEntitySkinData skinData = (PlayerEntitySkinData) player;
         skinData.setTextureModel("default"); // Default texture model for offline players
     }
 
-    public void init(Player player) {
+    public void init(PlayerEntity player) {
         if (updatePlayer(player)) return;
 
         initOffline(player);

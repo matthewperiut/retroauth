@@ -13,11 +13,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.PlayerRenderer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.mob.player.PlayerEntity;
 
 @Mixin(EntityRenderDispatcher.class)
 public class EntityRenderDispatcherMixin {
@@ -35,12 +35,12 @@ public class EntityRenderDispatcherMixin {
             playerRenderers.put(model, renderer);
         }
 
-        this.renderers.put(Player.class, playerRenderers.get("default"));
+        this.renderers.put(PlayerEntity.class, playerRenderers.get("default"));
     }
 
-    @Inject(method = "getRenderer(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/client/renderer/entity/EntityRenderer;", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getRenderer(Lnet/minecraft/entity/Entity;)Lnet/minecraft/client/render/entity/EntityRenderer;", at = @At("HEAD"), cancellable = true)
     private void onGet(Entity entity, CallbackInfoReturnable<EntityRenderer> cir) {
-        if (entity instanceof Player player) {
+        if (entity instanceof PlayerEntity player) {
             String textureModel = ((PlayerEntitySkinData) player).getTextureModel();
             cir.setReturnValue(playerRenderers.get(textureModel));
         }

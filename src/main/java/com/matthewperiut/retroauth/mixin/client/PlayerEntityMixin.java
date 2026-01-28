@@ -10,26 +10,26 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Objects;
-import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.player.PlayerEntity;
+import net.minecraft.world.World;
 
-@Mixin(Player.class)
-public abstract class PlayerEntityMixin extends Mob implements PlayerEntitySkinData {
+@Mixin(PlayerEntity.class)
+public abstract class PlayerEntityMixin extends MobEntity implements PlayerEntitySkinData {
     @Unique
     private String textureModel;
 
-    public PlayerEntityMixin(Level world) {
+    public PlayerEntityMixin(World world) {
         super(world);
     }
 
-    @Inject(method = "prepareCustomTextures", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "prepareCape", at = @At("HEAD"), cancellable = true)
     private void cancelUpdateCapeUrl(CallbackInfo ci) {
         ci.cancel();
     }
 
-    @Redirect(method = "<init>", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Player;textureName:Ljava/lang/String;"))
-    private void redirectTexture(Player instance, String value) {
+    @Redirect(method = "<init>", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/mob/player/PlayerEntity;texture:Ljava/lang/String;"))
+    private void redirectTexture(PlayerEntity instance, String value) {
         this.setTextureModel("default");
     }
 
@@ -41,6 +41,6 @@ public abstract class PlayerEntityMixin extends Mob implements PlayerEntitySkinD
     @Unique
     public void setTextureModel(String textureModel) {
         this.textureModel = textureModel;
-        this.textureName = Objects.equals(textureModel, "default") ? SkinService.STEVE_TEXTURE : SkinService.ALEX_TEXTURE;
+        this.texture = Objects.equals(textureModel, "default") ? SkinService.STEVE_TEXTURE : SkinService.ALEX_TEXTURE;
     }
 }

@@ -21,7 +21,8 @@ repositories {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings ploceus.mappings("me.alphamode:nostalgia:${project.nostalgia_mappings}:v2")
+//	mappings ploceus.mappings("me.alphamode:nostalgia:${project.nostalgia_mappings}:v2")
+	mappings ploceus.featherMappings(project.feather_build)
 
     clientExceptions ploceus.raven(project.client_raven_build, 'client')
     serverExceptions ploceus.raven(project.server_raven_build, 'server')

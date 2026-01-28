@@ -3,11 +3,11 @@ package com.matthewperiut.retroauth.mixin.client;
 import com.matthewperiut.retroauth.profile.GameProfile;
 import com.matthewperiut.retroauth.session.SessionData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.network.handler.ClientNetworkHandler;
 import net.minecraft.network.Connection;
-import net.minecraft.network.packets.LoginPacket;
-import net.minecraft.network.packets.Packet;
-import net.minecraft.network.packets.PreLoginPacket;
+import net.minecraft.network.packet.HandshakePacket;
+import net.minecraft.network.packet.LoginPacket;
+import net.minecraft.network.packet.Packet;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-@Mixin(ClientPacketListener.class)
+@Mixin(ClientNetworkHandler.class)
 public abstract class ClientNetworkHandlerMixin {
     @Shadow
     private Minecraft minecraft;
@@ -28,26 +28,26 @@ public abstract class ClientNetworkHandlerMixin {
     private Connection connection;
 
     @Shadow
-    public abstract void send(Packet arg);
+    public abstract void sendPacket(Packet arg);
 
-    @Redirect(method = "handlePreLogin", at = @At(value = "INVOKE", target = "Ljava/lang/String;equals(Ljava/lang/Object;)Z"))
+    @Redirect(method = "handleHandshake", at = @At(value = "INVOKE", target = "Ljava/lang/String;equals(Ljava/lang/Object;)Z"))
     private boolean checkServerId(String serverId, Object offline) {
-        return serverId.trim().isEmpty() || serverId.equals(offline) || this.minecraft.user.sessionId.trim().isEmpty() || this.minecraft.user.sessionId.equals(offline);
+        return serverId.trim().isEmpty() || serverId.equals(offline) || this.minecraft.session.id.trim().isEmpty() || this.minecraft.session.id.equals(offline);
     }
 
-    @Inject(method = "handlePreLogin", at = @At(value = "NEW", target = "java/net/URL"), cancellable = true)
-    private void onJoinServer(PreLoginPacket packet, CallbackInfo ci) {
-        SessionData session = (SessionData) this.minecraft.user;
+    @Inject(method = "handleHandshake", at = @At(value = "NEW", target = "java/net/URL"), cancellable = true)
+    private void onJoinServer(HandshakePacket packet, CallbackInfo ci) {
+        SessionData session = (SessionData) this.minecraft.session;
 
         try {
             if (session.getGameProfile() == null || session.getAccessToken() == null) {
-                this.connection.disconnect("disconnect.loginFailedInfo", "Invalid access token!");
+                this.connection.close("disconnect.loginFailedInfo", "Invalid access token!");
             }
 
-            joinServer(session.getGameProfile(), session.getAccessToken(), packet.userName);
-            this.send(new LoginPacket(this.minecraft.user.username, 14));
+            joinServer(session.getGameProfile(), session.getAccessToken(), packet.key);
+            this.sendPacket(new LoginPacket(this.minecraft.session.username, 14));
         } catch (Exception e) {
-            this.connection.disconnect("disconnect.loginFailedInfo", e.getMessage());
+            this.connection.close("disconnect.loginFailedInfo", e.getMessage());
         }
 
         ci.cancel();

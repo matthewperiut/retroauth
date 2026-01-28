@@ -2,8 +2,8 @@ package com.matthewperiut.retroauth.mixin.client;
 
 import com.matthewperiut.retroauth.skin.ModernPlayerEntityModel;
 import com.matthewperiut.retroauth.skin.data.ModelPartData;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.render.model.ModelPart;
+import net.minecraft.client.render.model.entity.HumanoidModel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
@@ -14,8 +14,8 @@ import org.spongepowered.asm.mixin.injection.Slice;
 public class BipedEntityModelMixin {
     @Redirect(
             method = "<init>(FF)V",
-            at = @At(value = "NEW", target = "(II)Lnet/minecraft/client/model/geom/ModelPart;"),
-            slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/client/model/HumanoidModel;ear:Lnet/minecraft/client/model/geom/ModelPart;", shift = Shift.AFTER))
+            at = @At(value = "NEW", target = "(II)Lnet/minecraft/client/render/model/ModelPart;"),
+            slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/client/render/model/entity/HumanoidModel;deadmau5Ears:Lnet/minecraft/client/render/model/ModelPart;", shift = Shift.AFTER))
     )
     private ModelPart onTexturedQuad(int u, int v) {
         ModelPart modelPart = new ModelPart(u, v);

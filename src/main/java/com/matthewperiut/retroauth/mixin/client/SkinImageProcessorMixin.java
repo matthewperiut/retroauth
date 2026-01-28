@@ -15,9 +15,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.util.Objects;
-import net.minecraft.client.renderer.MobSkinTextureProcessor;
+import net.minecraft.client.render.texture.SkinImageProcessor;
 
-@Mixin(MobSkinTextureProcessor.class)
+@Mixin(SkinImageProcessor.class)
 public class SkinImageProcessorMixin implements SkinImageProcessorData {
     @Unique
     private String textureModel;
