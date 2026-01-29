@@ -40,7 +40,9 @@ public class SkinService {
             // Apply fetched profile data
             skinData.setTextureModel(playerProfile.getTextureModel());
             player.skin = playerProfile.getSkinUrl();
-            player.cape = player.cape = playerProfile.getCapeUrl();
+            // PlayerEntity.cape shadows Entity.cape — must set both
+            player.cape = playerProfile.getCapeUrl();
+            ((net.minecraft.entity.Entity) player).cape = playerProfile.getCapeUrl();
         }
 
         // Notify the world renderer to update the player entity
