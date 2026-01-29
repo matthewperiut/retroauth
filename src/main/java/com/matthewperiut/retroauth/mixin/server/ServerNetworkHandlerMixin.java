@@ -3,8 +3,6 @@ package com.matthewperiut.retroauth.mixin.server;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.matthewperiut.retroauth.RetroAuth;
-import net.minecraft.network.packet.login.LoginHelloPacket;
-import net.minecraft.server.network.ServerLoginNetworkHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -13,16 +11,18 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import net.minecraft.network.packet.LoginPacket;
+import net.minecraft.server.network.handler.ServerLoginNetworkHandler;
 
-@Mixin(targets = "net.minecraft.server.network.ServerLoginNetworkHandler$AuthThread")
+@Mixin(targets = "net.minecraft.server.network.handler.ServerLoginNetworkHandler$net.minecraft.server.network.handler.ServerLoginNetworkHandler__15575233")
 public class ServerNetworkHandlerMixin {
     private static final String SESSION_SERVER_URL = "https://sessionserver.mojang.com/session/minecraft/hasJoined";
     @Shadow
     @Final
-    ServerLoginNetworkHandler networkHandler;
+    ServerLoginNetworkHandler f_55814992;
     @Shadow
     @Final
-    LoginHelloPacket loginPacket;
+    LoginPacket f_12137288;
 
     /**
      * @reason Swap auth logic completely
@@ -31,11 +31,11 @@ public class ServerNetworkHandlerMixin {
     @Overwrite(remap = false)
     public void run() {
         try {
-            ServerNetworkHandlerAccessor accessor = (ServerNetworkHandlerAccessor) networkHandler;
+            ServerNetworkHandlerAccessor accessor = (ServerNetworkHandlerAccessor) f_55814992;
 
             try {
                 // Construct the URL for Mojang's session server
-                String requestUrl = SESSION_SERVER_URL + "?username=" + loginPacket.username + "&serverId=" + accessor.getServerId();
+                String requestUrl = SESSION_SERVER_URL + "?username=" + f_12137288.username + "&serverId=" + accessor.getServerId();
 
                 // Open connection
                 HttpURLConnection connection = (HttpURLConnection) new URL(requestUrl).openConnection();
@@ -51,15 +51,15 @@ public class ServerNetworkHandlerMixin {
                     String id = jsonResponse.get("id").getAsString();
 
                     RetroAuth.LOGGER.info("Authenticated " + name + " as " + id);
-                    accessor.setLoginPacket(loginPacket);
+                    accessor.setLoginPacket(f_12137288);
                     return;
                 }
             } catch (Exception ignored) {
             }
 
-            networkHandler.disconnect("Failed to authenticate!");
+            f_55814992.disconnect("Failed to authenticate!");
         } catch (Exception e) {
-            networkHandler.disconnect("Failed to authenticate! [internal error " + e + "]");
+            f_55814992.disconnect("Failed to authenticate! [internal error " + e + "]");
             e.printStackTrace();
         }
     }

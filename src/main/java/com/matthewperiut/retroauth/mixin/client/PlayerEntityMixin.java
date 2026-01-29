@@ -2,9 +2,6 @@ package com.matthewperiut.retroauth.mixin.client;
 
 import com.matthewperiut.retroauth.skin.SkinService;
 import com.matthewperiut.retroauth.skin.data.PlayerEntitySkinData;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,9 +10,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Objects;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.mob.player.PlayerEntity;
+import net.minecraft.world.World;
 
 @Mixin(PlayerEntity.class)
-public abstract class PlayerEntityMixin extends LivingEntity implements PlayerEntitySkinData {
+public abstract class PlayerEntityMixin extends MobEntity implements PlayerEntitySkinData {
     @Unique
     private String textureModel;
 
@@ -23,12 +23,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements PlayerEn
         super(world);
     }
 
-    @Inject(method = "updateCapeUrl", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "prepareCape", at = @At("HEAD"), cancellable = true)
     private void cancelUpdateCapeUrl(CallbackInfo ci) {
         ci.cancel();
     }
 
-    @Redirect(method = "<init>", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerEntity;texture:Ljava/lang/String;"))
+    @Redirect(method = "<init>", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/mob/player/PlayerEntity;texture:Ljava/lang/String;"))
     private void redirectTexture(PlayerEntity instance, String value) {
         this.setTextureModel("default");
     }

@@ -3,11 +3,11 @@ package com.matthewperiut.retroauth.mixin.client;
 import com.matthewperiut.retroauth.skin.CapeImageProcessor;
 import com.matthewperiut.retroauth.skin.data.PlayerEntitySkinData;
 import com.matthewperiut.retroauth.skin.data.SkinImageProcessorData;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.texture.ImageProcessor;
+import net.minecraft.client.entity.mob.player.ClientPlayerEntity;
+import net.minecraft.client.render.texture.HttpImageProcessor;
+import net.minecraft.client.render.world.WorldRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.mob.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,9 +34,9 @@ public class WorldRendererMixin {
 
     @ModifyArg(
             method = "notifyEntityAdded", index = 1,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/texture/TextureManager;downloadImage(Ljava/lang/String;Lnet/minecraft/client/texture/ImageProcessor;)Lnet/minecraft/client/texture/ImageDownload;", ordinal = 0)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/texture/TextureManager;addHttpTexture(Ljava/lang/String;Lnet/minecraft/client/render/texture/HttpImageProcessor;)Lnet/minecraft/client/render/texture/HttpTexture;", ordinal = 0)
     )
-    private ImageProcessor redirectSkinProcessor(ImageProcessor def) {
+    private HttpImageProcessor redirectSkinProcessor(HttpImageProcessor def) {
         if (currentEntity instanceof PlayerEntity) {
             PlayerEntitySkinData playerSkinData = (PlayerEntitySkinData) currentEntity;
             SkinImageProcessorData skinImageProcessorData = (SkinImageProcessorData) def;
@@ -47,9 +47,9 @@ public class WorldRendererMixin {
 
     @ModifyArg(
             method = "notifyEntityAdded", index = 1,
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/texture/TextureManager;downloadImage(Ljava/lang/String;Lnet/minecraft/client/texture/ImageProcessor;)Lnet/minecraft/client/texture/ImageDownload;", ordinal = 1)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/texture/TextureManager;addHttpTexture(Ljava/lang/String;Lnet/minecraft/client/render/texture/HttpImageProcessor;)Lnet/minecraft/client/render/texture/HttpTexture;", ordinal = 1)
     )
-    private ImageProcessor redirectCapeProcessor(ImageProcessor def) {
+    private HttpImageProcessor redirectCapeProcessor(HttpImageProcessor def) {
         return new CapeImageProcessor();
     }
 }

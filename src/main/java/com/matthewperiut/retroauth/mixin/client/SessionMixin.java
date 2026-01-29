@@ -4,7 +4,6 @@ import com.matthewperiut.retroauth.RetroAuth;
 import com.matthewperiut.retroauth.profile.GameProfile;
 import com.matthewperiut.retroauth.session.SessionData;
 import com.matthewperiut.retroauth.skin.SkinService;
-import net.minecraft.client.util.Session;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 import java.util.regex.Pattern;
+import net.minecraft.client.Session;
 
 @Mixin(Session.class)
 public class SessionMixin implements SessionData {

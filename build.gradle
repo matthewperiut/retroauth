@@ -1,116 +1,74 @@
 plugins {
-	id 'fabric-loom' version '1.8.10'
-	id 'babric-loom-extension' version '1.8.8'
 	id 'maven-publish'
+	id 'net.fabricmc.fabric-loom-remap' version '1.15.+'
+	id 'ploceus' version '1.15-SNAPSHOT'
 }
 
-sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
-version = project.mod_version
+base {
+	archivesName = project.archives_base_name
+}
+version = "${project.version}+mc${project.minecraft_version}"
 group = project.maven_group
 
-loom {
-	// reference accessor file here if needed, see fabric wiki, along with in fabric.mod.json
+ploceus {
+	setIntermediaryGeneration(2)
 }
 
 repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
-
-	// Used for the fabric toolchain in this project.
-	maven {
-		name = 'Babric'
-		url = 'https://maven.glass-launcher.net/babric'
-	}
-	// Used for mappings.
-	maven {
-		name = 'Glass Releases'
-		url = 'https://maven.glass-launcher.net/releases'
-	}
-	maven {
-		url = 'https://isoberry.com/maven'
-	}
-	// Used for StationAPI and HowManyItems.
-	maven {
-		name = 'Glass Snapshots'
-		url = 'https://maven.glass-launcher.net/snapshots'
-	}
-	// Used for a StationAPI dependency.
-	maven {
-		name = 'Froge'
-		url 'https://maven.minecraftforge.net/'
-	}
-	// Used for projects that do not have a maven repository, but do have a GitHub repository with working build scripts.
-	maven {
-		name = 'Jitpack'
-		url = 'https://jitpack.io'
-	}
-	// Used for another StationAPI dependency
-	exclusiveContent {
-		forRepository {
-			maven {
-				name = "Modrinth"
-				url = "https://api.modrinth.com/maven"
-			}
-		}
-		filter {
-			includeGroup "maven.modrinth"
-		}
-	}
-	mavenCentral()
+	maven { url 'https://mvn.devos.one/releases' }
+	maven { url 'https://maven.wispforest.io' }
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.glasslauncher:biny:${project.biny_mappings}:v2"
-	modImplementation "babric:fabric-loader:${project.loader_version}"
+//	mappings ploceus.mappings("me.alphamode:nostalgia:${project.nostalgia_mappings}:v2")
+	mappings ploceus.featherMappings(project.feather_build)
 
-	implementation "org.slf4j:slf4j-api:1.8.0-beta4"
-	implementation 'org.apache.logging.log4j:log4j-slf4j18-impl:2.17.2'
-	implementation("io.github.llamalad7:mixinextras-fabric:${mixinextras_version}")
-	annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixinextras_version}")
-	implementation(include("com.google.code.gson:gson:2.10") as Dependency)
+    clientExceptions ploceus.raven(project.client_raven_build, 'client')
+    serverExceptions ploceus.raven(project.server_raven_build, 'server')
+    clientSignatures ploceus.sparrow(project.client_sparrow_build, 'client')
+    serverSignatures ploceus.sparrow(project.server_sparrow_build, 'server')
+    clientNests ploceus.nests(project.client_nests_build, 'client')
+    serverNests ploceus.nests(project.server_nests_build, 'server')
 
-	// API Extensions
-	modImplementation("maven.modrinth:retrocommands:${retrocommands_version}") { transitive false }
-
-	// Runtime Convenience
-	modRuntimeOnly ("maven.modrinth:thirdpersonfix-babric:${project.thirdpersonfix_version}") { transitive false }
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 }
 
 processResources {
-	inputs.property "version", project.version
+	inputs.property 'version', version
 
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
+	filesMatching('fabric.mod.json') {
+		expand 'version': version
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	// Loom also requires J17.
+	it.options.encoding = 'UTF-8'
 	it.options.release = 17
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
+	// Still required by IDEs such as Eclipse and Visual Studio Code
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task if it is present.
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
+
+	// If this mod is going to be a library, then it should also generate Javadocs in order to aid with development.
+	// Uncomment this line to generate them.
+	// withJavadocJar()
 }
 
+// If you plan to use a different file for the license, don't forget to change the file name here!
 jar {
-	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+	from('LICENSE') {
+		rename { "${it}_${base.archivesName.get()}" }
 	}
 }
 
-// configure the maven publication
+// Configure the maven publication
 publishing {
 	publications {
 		mavenJava(MavenPublication) {

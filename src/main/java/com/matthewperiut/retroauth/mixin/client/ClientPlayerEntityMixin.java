@@ -1,8 +1,8 @@
 package com.matthewperiut.retroauth.mixin.client;
 
 import com.matthewperiut.retroauth.skin.SkinService;
-import net.minecraft.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.entity.mob.player.ClientPlayerEntity;
+import net.minecraft.entity.mob.player.PlayerEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
