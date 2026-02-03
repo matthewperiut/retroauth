@@ -1,6 +1,7 @@
 package com.matthewperiut.retroauth.mixin.client;
 
 import com.matthewperiut.retroauth.skin.data.SkinImageProcessorData;
+import net.minecraft.client.texture.SkinImageProcessor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,7 +16,6 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 import java.util.Objects;
-import net.minecraft.client.render.texture.SkinImageProcessor;
 
 @Mixin(SkinImageProcessor.class)
 public class SkinImageProcessorMixin implements SkinImageProcessorData {

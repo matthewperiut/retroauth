@@ -2,25 +2,25 @@ package com.matthewperiut.retroauth.mixin.client;
 
 import com.matthewperiut.retroauth.skin.ModernPlayerEntityModel;
 import com.matthewperiut.retroauth.skin.data.ModelPartData;
-import net.minecraft.client.render.model.ModelPart;
-import net.minecraft.client.render.model.entity.HumanoidModel;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 
-@Mixin(HumanoidModel.class)
+@Mixin(BipedEntityModel.class)
 public class BipedEntityModelMixin {
     @Redirect(
             method = "<init>(FF)V",
-            at = @At(value = "NEW", target = "(II)Lnet/minecraft/client/render/model/ModelPart;"),
-            slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/client/render/model/entity/HumanoidModel;deadmau5Ears:Lnet/minecraft/client/render/model/ModelPart;", shift = Shift.AFTER))
+            at = @At(value = "NEW", target = "(II)Lnet/minecraft/client/model/ModelPart;"),
+            slice = @Slice(from = @At(value = "FIELD", target = "Lnet/minecraft/client/render/entity/model/BipedEntityModel;ears:Lnet/minecraft/client/model/ModelPart;", shift = Shift.AFTER))
     )
     private ModelPart onTexturedQuad(int u, int v) {
         ModelPart modelPart = new ModelPart(u, v);
 
-        HumanoidModel self = (HumanoidModel) (Object) this;
+        BipedEntityModel self = (BipedEntityModel) (Object) this;
         if (self instanceof ModernPlayerEntityModel) {
             ((ModelPartData) modelPart).setTextureHeight(64);
         }

@@ -1,7 +1,7 @@
 package com.matthewperiut.retroauth.mixin;
 
-import net.minecraft.network.packet.HandshakePacket;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.handshake.HandshakePacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -13,7 +13,7 @@ abstract class HandshakePacketMixin extends Packet {
             method = "read",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/network/packet/HandshakePacket;readString(Ljava/io/DataInputStream;I)Ljava/lang/String;"
+                    target = "Lnet/minecraft/network/packet/handshake/HandshakePacket;readString(Ljava/io/DataInputStream;I)Ljava/lang/String;"
             ),
             index = 1
     )

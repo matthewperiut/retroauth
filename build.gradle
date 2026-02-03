@@ -15,6 +15,8 @@ ploceus {
 }
 
 repositories {
+	mavenLocal()
+	maven {url 'https://maven.glass-launcher.net/releases' } // Used for mappings.
 	maven { url 'https://mvn.devos.one/releases' }
 	maven { url 'https://maven.wispforest.io' }
 }
@@ -22,9 +24,10 @@ repositories {
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 //	mappings ploceus.mappings("me.alphamode:nostalgia:${project.nostalgia_mappings}:v2")
-	mappings ploceus.featherMappings(project.feather_build)
+//	mappings ploceus.featherMappings(project.feather_build)
+	mappings ploceus.mappings("net.glasslauncher:biny-ornithe:b1.7.3+build.2e38f45:mergedv2")
 
-    clientExceptions ploceus.raven(project.client_raven_build, 'client')
+	clientExceptions ploceus.raven(project.client_raven_build, 'client')
     serverExceptions ploceus.raven(project.server_raven_build, 'server')
     clientSignatures ploceus.sparrow(project.client_sparrow_build, 'client')
     serverSignatures ploceus.sparrow(project.server_sparrow_build, 'server')
