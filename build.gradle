@@ -1,37 +1,73 @@
 plugins {
+	id 'java'
 	id 'maven-publish'
-	id 'net.fabricmc.fabric-loom-remap' version '1.15.+'
-	id 'ploceus' version '1.15-SNAPSHOT'
+	id 'net.fabricmc.fabric-loom-remap' version '1.16.3'
+	id 'ploceus' version '1.16.1'
+	// Also builds a babric variant of the mod (build/libs/<name>-babric.jar): reverse-converted
+	// to babric and bundled with OSL (incl. networking) + joptsimple, so babric users get a
+	// self-contained jar. Run `./gradlew build`; the babric jar appears alongside the ornithe one.
+	id 'com.periut.retroconvert' version "${retroconvert_version}"
 }
 
 base {
 	archivesName = project.archives_base_name
 }
-version = "${project.mod_version}+mc${project.minecraft_version}"
+version = "${project.version}+mc${project.minecraft_version}"
 group = project.maven_group
 
 ploceus {
+	// gen2 intermediary (ORNITHE_V2) - MUST match the runtime the server/client are installed with.
 	setIntermediaryGeneration(2)
 }
 
 repositories {
-	maven { url 'https://mvn.devos.one/releases' }
-	maven { url 'https://maven.wispforest.io' }
+	mavenLocal()
+	maven { url = 'https://matthewperiut.github.io/repository' } // gen2 mod deps + retroconvert
+	maven { name = 'Glass Releases'; url = 'https://maven.glass-launcher.net/releases' } // biny
+	maven { name = 'Glass Snapshots'; url = 'https://maven.glass-launcher.net/snapshots' }
+	maven { name = 'Glass Babric'; url = 'https://maven.glass-launcher.net/babric' }
+	maven { name = 'Ornithe Releases'; url = 'https://maven.ornithemc.net/releases' } // gen2 OSL for the babric bundle
+	mavenCentral()
+}
+
+// The -babric jar bundles these OSL gen2 modules (reverse-converted) + joptsimple under
+// META-INF/jars/, so the babric build carries its own OSL networking stack. Versions track OSL 0.18.0
+// (mirrors the retroapi babric bundle).
+retroconvert {
+	bundle "net.ornithemc.osl-gen2:core:0.7.1"
+	bundle "net.ornithemc.osl-gen2:entrypoints:0.6.0+mca1.0.1_01-mc1.5.2"
+	bundle "net.ornithemc.osl-gen2:lifecycle-events:0.6.0+mcb1.3-mcb1.7.3"
+	bundle "net.ornithemc.osl-gen2:networking:0.9.0+mcb1.0-mc13w39b"
+	bundle "net.ornithemc.osl-gen2:networking-impl:0.1.1+mcb1.5-mc11w48a"
 }
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-//	mappings ploceus.mappings("me.alphamode:nostalgia:${project.nostalgia_mappings}:v2")
-	mappings ploceus.featherMappings(project.feather_build)
-
-    clientExceptions ploceus.raven(project.client_raven_build, 'client')
-    serverExceptions ploceus.raven(project.server_raven_build, 'server')
-    clientSignatures ploceus.sparrow(project.client_sparrow_build, 'client')
-    serverSignatures ploceus.sparrow(project.server_sparrow_build, 'server')
-    clientNests ploceus.nests(project.client_nests_build, 'client')
-    serverNests ploceus.nests(project.server_nests_build, 'server')
-
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	mappings ploceus.mappings("net.glasslauncher:biny-ornithe:b1.7.3+build.${project.biny_mappings}:mergedv2")
+
+	clientExceptions ploceus.raven(project.client_raven_build, 'client')
+	serverExceptions ploceus.raven(project.server_raven_build, 'server')
+	clientSignatures ploceus.sparrow(project.client_sparrow_build, 'client')
+	serverSignatures ploceus.sparrow(project.server_sparrow_build, 'server')
+	clientNests "net.glasslauncher:biny-nests:b1.7.3-client+build.${project.biny_nests_build}"
+	serverNests "net.glasslauncher:biny-nests:b1.7.3-server+build.${project.biny_nests_build}"
+
+	// OSL on the ornithe side (entrypoints, networking, ...). On babric these are bundled instead (see above).
+	ploceus.dependOsl(project.osl_version)
+
+	// starac brings LWJGL 3, which would clash with vanilla Minecraft's LWJGL 2 API, so keep it off the
+	// compile classpath - it is only here so `runClient`/`runServer` can exercise the retroauth+starac flow.
+	modRuntimeOnly "com.periut:starac:${project.starac_version}"
+}
+
+// Exclude the Legacy Fabric LWJGL 2 wrapper at RUNTIME only (starac provides LWJGL 3).
+// It must stay on the compile/minecraft classpath so Condor (Ploceus LVT generator)
+// can resolve org.lwjgl.* classes referenced by b1.7.3 - a blanket exclude here
+// strips LWJGL 2 from minecraftCompileLibraries and crashes LVT generation.
+configurations.matching { it.name.toLowerCase().contains('runtime') }.configureEach {
+	exclude group: 'org.lwjgl.lwjgl'
 }
 
 processResources {
@@ -44,43 +80,28 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = 'UTF-8'
-	it.options.release = 17
+	it.options.release = 21
 }
 
 java {
-	// Still required by IDEs such as Eclipse and Visual Studio Code
-	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompatibility = JavaVersion.VERSION_17
-
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task if it is present.
-	// If you remove this line, sources will not be generated.
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 	withSourcesJar()
-
-	// If this mod is going to be a library, then it should also generate Javadocs in order to aid with development.
-	// Uncomment this line to generate them.
-	// withJavadocJar()
 }
 
-// If you plan to use a different file for the license, don't forget to change the file name here!
 jar {
 	from('LICENSE') {
 		rename { "${it}_${base.archivesName.get()}" }
 	}
 }
 
-// Configure the maven publication
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
 			from components.java
 		}
 	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		mavenLocal()
 	}
 }

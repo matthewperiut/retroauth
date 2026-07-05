@@ -9,7 +9,8 @@ import com.matthewperiut.retroauth.profile.provider.ProfileProvider;
 import com.matthewperiut.retroauth.skin.data.PlayerEntitySkinData;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.mob.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
+
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,10 +40,8 @@ public class SkinService {
         } else {
             // Apply fetched profile data
             skinData.setTextureModel(playerProfile.getTextureModel());
-            player.skin = playerProfile.getSkinUrl();
-            // PlayerEntity.cape shadows Entity.cape — must set both
-            player.cape = playerProfile.getCapeUrl();
-            ((net.minecraft.entity.Entity) player).cape = playerProfile.getCapeUrl();
+            player.skinUrl = playerProfile.getSkinUrl();
+            player.capeUrl = player.playerCapeUrl = playerProfile.getCapeUrl();
         }
 
         // Notify the world renderer to update the player entity

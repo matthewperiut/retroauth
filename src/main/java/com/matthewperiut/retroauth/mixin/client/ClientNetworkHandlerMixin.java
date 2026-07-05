@@ -3,11 +3,11 @@ package com.matthewperiut.retroauth.mixin.client;
 import com.matthewperiut.retroauth.profile.GameProfile;
 import com.matthewperiut.retroauth.session.SessionData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.handler.ClientNetworkHandler;
+import net.minecraft.client.network.ClientNetworkHandler;
 import net.minecraft.network.Connection;
-import net.minecraft.network.packet.HandshakePacket;
-import net.minecraft.network.packet.LoginPacket;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.handshake.HandshakePacket;
+import net.minecraft.network.packet.login.LoginHelloPacket;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,24 +30,24 @@ public abstract class ClientNetworkHandlerMixin {
     @Shadow
     public abstract void sendPacket(Packet arg);
 
-    @Redirect(method = "handleHandshake", at = @At(value = "INVOKE", target = "Ljava/lang/String;equals(Ljava/lang/Object;)Z"))
+    @Redirect(method = "onHandshake", at = @At(value = "INVOKE", target = "Ljava/lang/String;equals(Ljava/lang/Object;)Z"))
     private boolean checkServerId(String serverId, Object offline) {
-        return serverId.trim().isEmpty() || serverId.equals(offline) || this.minecraft.session.id.trim().isEmpty() || this.minecraft.session.id.equals(offline);
+        return serverId.trim().isEmpty() || serverId.equals(offline) || this.minecraft.session.sessionId.trim().isEmpty() || this.minecraft.session.sessionId.equals(offline);
     }
 
-    @Inject(method = "handleHandshake", at = @At(value = "NEW", target = "java/net/URL"), cancellable = true)
+    @Inject(method = "onHandshake", at = @At(value = "NEW", target = "java/net/URL"), cancellable = true)
     private void onJoinServer(HandshakePacket packet, CallbackInfo ci) {
         SessionData session = (SessionData) this.minecraft.session;
 
         try {
             if (session.getGameProfile() == null || session.getAccessToken() == null) {
-                this.connection.close("disconnect.loginFailedInfo", "Invalid access token!");
+                this.connection.disconnect("disconnect.loginFailedInfo", "Invalid access token!");
             }
 
-            joinServer(session.getGameProfile(), session.getAccessToken(), packet.key);
-            this.sendPacket(new LoginPacket(this.minecraft.session.username, 14));
+            joinServer(session.getGameProfile(), session.getAccessToken(), packet.name);
+            this.sendPacket(new LoginHelloPacket(this.minecraft.session.username, 14));
         } catch (Exception e) {
-            this.connection.close("disconnect.loginFailedInfo", e.getMessage());
+            this.connection.disconnect("disconnect.loginFailedInfo", e.getMessage());
         }
 
         ci.cancel();

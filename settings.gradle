@@ -12,7 +12,15 @@ pluginManagement {
             name = 'Ornithe Snapshots'
             url = 'https://maven.ornithemc.net/snapshots'
         }
+        // RetroAPI repository - hosts the com.periut.retroconvert plugin (babric variant builder).
+        maven {
+            name = 'RetroAPI'
+            url = 'https://matthewperiut.github.io/repository'
+        }
+        mavenCentral()
         mavenLocal()
         gradlePluginPortal()
     }
 }
+
+rootProject.name = 'retroauth'
