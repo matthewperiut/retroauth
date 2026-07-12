@@ -18,7 +18,13 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(HandshakePacket.class)
 public abstract class HandshakePacketMixin {
 
-    @ModifyConstant(method = "read", constant = @Constant(intValue = 32))
+    // require = 0: glass-networking ships an identical @ModifyConstant on this
+    // same constant. Only one injector can rewrite it, so when glass-networking
+    // is present it wins and this one finds 0 targets. Without require = 0 that
+    // "(0/1) succeeded" is a fatal InjectionError that aborts HandshakePacket
+    // transformation and crashes the game. Tolerating 0 lets us apply when alone
+    // and cleanly no-op when glass-networking already widened the cap.
+    @ModifyConstant(method = "read", constant = @Constant(intValue = 32), require = 0)
     private int retroauth$widenHandshakeLimit(int original) {
         return 512;
     }
